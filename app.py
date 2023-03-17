@@ -2,6 +2,12 @@ import streamlit as st
 import pandas as pd
 import my_functions
 import matplotlib.pyplot as plt
+import datetime
+
+# Use a with statement to create the sidebar
+with st.sidebar:
+    # Add a title to the sidebar
+    st.title("Welcome to My App")
 
 container1 = st.container()
 container2 = st.container()
@@ -9,6 +15,7 @@ container3 = st.container()
 container4 = st.container()
 container5 = st.container()
 container6 = st.container()
+container7 = st.container()
 
 # Open the file and read its contents
 with open('text1.txt', 'r') as f:
@@ -49,6 +56,38 @@ with container3:
         
 with container4:
     # Create a header
+    st.header("Daily Quantity of Items Sold")
+    
+    # Preparing the Data for Plotting
+    my_functions.add_date_columns(df, 'Sale Date')
+    grouped_df = my_functions.get_clean_sales_data_by_date(df)
+    
+    # Get the minimum and maximum dates from the "Date" column of the DataFrame
+    min_date = pd.to_datetime(grouped_df['Date']).min()
+    max_date = pd.to_datetime(grouped_df['Date']).max()
+    
+    # Set the default start date to the minimum date and the default end date to the maximum date
+    default_start_date = min_date.date()
+    default_end_date = max_date.date()
+
+    # Create two columns to hold the date inputs
+    start_column, end_column = st.columns(2)
+    
+    # Add a date input for the start date
+    with start_column:
+        start_date = st.date_input("Select start date", default_start_date, min_value=min_date, max_value=max_date)
+    
+    # Add a date input for the end date
+    with end_column:
+        end_date = st.date_input("Select end date", default_end_date, min_value=min_date, max_value=max_date)
+
+    filtered_df = my_functions.filter_dataframe_by_date(grouped_df, start_date, end_date)
+    
+    my_functions.plot_line_chart_plotly(filtered_df, 'Date', 'Total Quantity Sold')
+
+        
+with container5:
+    # Create a header
     st.header("Number of Sold Items Plots")
     
     # Create two tabs
@@ -69,7 +108,7 @@ with container4:
         # plot number of sales by Weekend/Weekday
         my_functions.plot_sales_by_weekday_weekend(df)
         
-with container5:
+with container6:
     
     # Add a header to the container
     st.header("Plot Top n States")

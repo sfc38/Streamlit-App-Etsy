@@ -293,3 +293,43 @@ def plot_orders_by_state_bar_with_percentage(orders_by_state):
 
     # Show the plot using Streamlit's st.pyplot() method
     st.pyplot(fig)
+    
+def get_clean_sales_data_by_date(df):
+    # Group by sale_date_datetime and sum Number of Items
+    grouped_df = df.groupby('sale_date_datetime')['Number of Items'].sum().reset_index()
+
+    # Rename columns
+    grouped_df = grouped_df.rename(columns={'sale_date_datetime': 'Date', 'Number of Items': 'Total Quantity Sold'})
+
+    # Create a DataFrame with all dates in the date range
+    date_range = pd.date_range(start=grouped_df['Date'].min(), end=grouped_df['Date'].max(), freq='D')
+    date_df = pd.DataFrame({'Date': date_range})
+
+    # Merge the date_df with the grouped_df, filling any missing dates with zero
+    merged_df = pd.merge(date_df, grouped_df, how='left', on='Date').fillna(0)
+    
+    return merged_df
+    
+def filter_dataframe_by_date(df, start_date, end_date):
+    # Convert start and end dates to datetime objects
+    start_date = pd.to_datetime(start_date)
+    end_date = pd.to_datetime(end_date)
+    
+    # Filter the dataframe by date range
+    filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
+    
+    return filtered_df
+
+def plot_line_chart_plotly(df, x_col, y_col):
+    # Create a line plot of Total Quantity Sold by Date
+    fig = px.line(df, x=x_col, y=y_col)
+
+    # Set the title and axis labels
+    fig.update_layout(title=f'{y_col} by {x_col}', xaxis_title=x_col, yaxis_title=y_col)
+    
+    # Set the figure size
+    fig.update_layout(width=700, height=450)
+
+    # Display the plot using Plotly's Streamlit figure renderer
+    st.plotly_chart(fig)
+
