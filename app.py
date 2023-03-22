@@ -30,7 +30,7 @@ with container1:
     uploaded_file = st.file_uploader("Upload a CSV file", type="csv")
       
 with container2:
-    # If a file was uploaded
+    # If no file was uploaded
     if uploaded_file is None:
         # Read the CSV file and store it as a DataFrame
         df = pd.read_csv('EtsySoldOrders2022_masked.csv')
